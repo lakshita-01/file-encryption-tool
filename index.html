@@ -1,5 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>File Encryption/Decryption Tool</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header role="banner">
+  <div class="nav-container">
+    <div class="logo" aria-label="File Crypto Tool Logo">File Crypto Tool</div>
+    <nav role="navigation" aria-label="Primary navigation">
+      <div class="tablist" role="tablist" aria-label="Main Navigation Tabs">
+        <button role="tab" aria-selected="true" tabindex="0" id="tab-home">Home</button>
+        <button role="tab" aria-selected="false" tabindex="-1" id="tab-about">About</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- Home tab panel: hero + main encryption/decryption tool -->
+  <section role="tabpanel" id="panel-home" aria-labelledby="tab-home" class="active">
+    <section class="hero" aria-labelledby="hero-title">
+      <h1 id="hero-title">Secure Your Files Instantly</h1>
+      <p>Encrypt and decrypt your files with ease and ultimate security.</p>
+      <button class="cta-button" id="focusEncrypt" aria-describedby="hero-desc">Get Started</button>
+    </section>
+
+    <section class="main-section" aria-label="File encryption and decryption">
+      <article class="card" aria-labelledby="encrypt-title">
+        <h2 id="encrypt-title">Encrypt a File</h2>
+        <form id="encrypt-form" autocomplete="off">
+          <label for="encrypt-file">Select file to encrypt</label>
+          <input type="file" id="encrypt-file" name="encrypt-file" aria-required="true" accept="*/*" />
+          
+          <label for="encrypt-password">Enter encryption key (password)</label>
+          <input type="password" id="encrypt-password" name="encrypt-password" aria-required="true" placeholder="Your secret key" minlength="4" />
+
+          <button type="submit" class="action-btn" id="encrypt-btn" disabled>Encrypt File</button>
+        </form>
         <div class="status-message" id="encrypt-status" aria-live="polite" role="status"></div>
       </article>
+
       <article class="card" aria-labelledby="decrypt-title">
         <h2 id="decrypt-title">Decrypt a File</h2>
         <form id="decrypt-form" autocomplete="off">
@@ -8,12 +51,14 @@
           
           <label for="decrypt-password">Enter decryption key (password)</label>
           <input type="password" id="decrypt-password" name="decrypt-password" aria-required="true" placeholder="Your secret key" minlength="4" />
+
           <button type="submit" class="action-btn" id="decrypt-btn" disabled>Decrypt File</button>
         </form>
         <div class="status-message" id="decrypt-status" aria-live="polite" role="status"></div>
       </article>
     </section>
   </section>
+
   <!-- About tab panel -->
   <section role="tabpanel" id="panel-about" aria-labelledby="tab-about" tabindex="0">
     <article class="about-section" aria-label="About this project">
@@ -22,6 +67,7 @@
     </article>
   </section>
 </main>
+
 <script src="script.js"></script>
 </body>
 </html>
