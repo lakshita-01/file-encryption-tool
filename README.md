@@ -3,7 +3,7 @@
 A secure and user-friendly web application that lets you encrypt and decrypt files directly in your browser using AES-GCM encryption. No data ever leaves your device, ensuring your sensitive information stays private and protected.
 
 ---
-URL: 
+URL: encrypt-decrypt-manager.netlify.app
 
 ## Features
 
