@@ -1,73 +1,544 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>File Encryption/Decryption Tool</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>File Encryption/Decryption Tool</title>
+<style>
+  /* Import Inter font from Google Fonts */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+  :root {
+    --color-bg: #2a3d4b;
+    --color-text-body: #d1d5db;
+    --color-text-dark: #f9fafb;
+    --color-primary-bg: #ffffff;
+    --color-primary-text: #2a3d4b;
+    --shadow-light: rgba(0,0,0,0.2);
+    --shadow-medium: rgba(0,0,0,0.4);
+    --radius: 0.75rem;
+  }
+
+  /* Reset and base styles */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    position: relative;
+    min-height: 100vh;
+    /* ensure stacking context for vignette */
+    isolation: isolate;
+  }
+
+  /* Vignette overlay */
+  body::before {
+    content: "";
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background:
+      radial-gradient(
+        ellipse at center,
+        rgba(0, 0, 0, 0) 40%,
+        rgba(0, 0, 0, 0.5) 90%
+      );
+    mix-blend-mode: multiply;
+    opacity: 0.6;
+  }
+
+  a {
+    color: var(--color-primary-bg);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  a:hover,
+  a:focus {
+    color: #e5e7eb;
+    outline: none;
+  }
+
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 1rem 6rem;
+  }
+
+  /* Sticky header */
+  header {
+    position: sticky;
+    top: 0;
+    background-color: #1f2b38;
+    box-shadow: 0 2px 12px var(--shadow-medium);
+    z-index: 1000;
+  }
+
+  .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--color-primary-bg);
+    letter-spacing: 0.05em;
+  }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+    padding: 0;
+    margin: 0;
+  }
+
+  nav ul li {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-primary-bg);
+  }
+
+  nav ul li:hover,
+  nav ul li:focus {
+    color: #9ca3af;
+    cursor: pointer;
+  }
+
+  /* Hero section */
+  .hero {
+    text-align: center;
+    padding-top: 8rem;
+    padding-bottom: 4rem;
+  }
+
+  .hero h1 {
+    font-weight: 800;
+    color: var(--color-primary-bg);
+    font-size: 3rem;
+    max-width: 700px;
+    margin: 0 auto 1rem;
+    line-height: 1.1;
+  }
+
+  @media (min-width: 640px) {
+    .hero h1 {
+      font-size: 4rem;
+    }
+  }
+
+  .hero p {
+    font-weight: 500;
+    font-size: 1.25rem;
+    max-width: 560px;
+    margin: 0 auto 2.5rem;
+    color: #d1d5db;
+  }
+
+  .hero .cta-button {
+    background-color: var(--color-primary-bg);
+    color: var(--color-primary-text);
+    font-weight: 700;
+    font-size: 1.25rem;
+    padding: 1rem 3rem;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(255 255 255 / 0.4);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .hero .cta-button:hover,
+  .hero .cta-button:focus {
+    background-color: #f4f4f5;
+    outline: none;
+    transform: scale(1.05);
+  }
+
+  /* Main section */
+  .main-section {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  @media (min-width: 768px) {
+    .main-section {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* Card */
+  .card {
+    background-color: #3f536a;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px var(--shadow-medium);
+    padding: 2.5rem 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    color: var(--color-primary-bg);
+  }
+
+  .card h2 {
+    font-weight: 700;
+    color: var(--color-primary-bg);
+    font-size: 1.75rem;
+    margin: 0 0 1rem;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--color-primary-bg);
+    font-size: 1rem;
+  }
+
+  input[type="file"] {
+    font-size: 1rem;
+    color: var(--color-primary-bg);
+    background-color: #516b87;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  input[type="file"]:hover,
+  input[type="file"]:focus {
+    background-color: #6380ac;
+    outline: none;
+  }
+
+  input[type="password"] {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1.5px solid #6b7e99;
+    border-radius: 0.5rem;
+    background-color: #516b87;
+    color: var(--color-primary-bg);
+    transition: border-color 0.3s ease;
+  }
+
+  input[type="password"]::placeholder {
+    color: #cbd5e1;
+  }
+
+  input[type="password"]:focus {
+    border-color: var(--color-primary-bg);
+    outline: none;
+    background-color: #6380ac;
+  }
+
+  button.action-btn {
+    background-color: var(--color-primary-bg);
+    color: var(--color-primary-text);
+    font-weight: 700;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    align-self: start;
+    box-shadow: 0 4px 14px rgba(255 255 255 / 0.5);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  button.action-btn:disabled {
+    background-color: #7a8a9e;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  button.action-btn:hover:not(:disabled),
+  button.action-btn:focus:not(:disabled) {
+    background-color: #e2e8f0;
+    color: var(--color-bg);
+    outline: none;
+    transform: scale(1.05);
+  }
+
+  /* Status message */
+  .status-message {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-primary-bg);
+    min-height: 1.25rem;
+    user-select: none;
+    white-space: pre-wrap;
+  }
+
+  /* Link to download */
+  .download-link {
+    margin-top: 0.8rem;
+    display: inline-block;
+    font-weight: 600;
+    color: var(--color-primary-bg);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .download-link:hover,
+  .download-link:focus {
+    color: #f0f9ff;
+    outline: none;
+  }
+</style>
 </head>
 <body>
 <header role="banner">
   <div class="nav-container">
     <div class="logo" aria-label="File Crypto Tool Logo">File Crypto Tool</div>
     <nav role="navigation" aria-label="Primary navigation">
-      <div class="tablist" role="tablist" aria-label="Main Navigation Tabs">
-        <button role="tab" aria-selected="true" tabindex="0" id="tab-home">Home</button>
-        <button role="tab" aria-selected="false" tabindex="-1" id="tab-about">About</button>
-      </div>
+      <ul>
+        <li><a href="#" tabindex="0">Home</a></li>
+        <li><a href="#" tabindex="0">About</a></li>
+      </ul>
     </nav>
   </div>
 </header>
 
 <main>
-  <!-- Home tab panel: hero + main encryption/decryption tool -->
-  <section role="tabpanel" id="panel-home" aria-labelledby="tab-home" class="active">
-    <section class="hero" aria-labelledby="hero-title">
-      <h1 id="hero-title">Secure Your Files Instantly</h1>
-      <p>Encrypt and decrypt your files with ease and ultimate security.</p>
-      <button class="cta-button" id="focusEncrypt" aria-describedby="hero-desc">Get Started</button>
-    </section>
-
-    <section class="main-section" aria-label="File encryption and decryption">
-      <article class="card" aria-labelledby="encrypt-title">
-        <h2 id="encrypt-title">Encrypt a File</h2>
-        <form id="encrypt-form" autocomplete="off">
-          <label for="encrypt-file">Select file to encrypt</label>
-          <input type="file" id="encrypt-file" name="encrypt-file" aria-required="true" accept="*/*" />
-          
-          <label for="encrypt-password">Enter encryption key (password)</label>
-          <input type="password" id="encrypt-password" name="encrypt-password" aria-required="true" placeholder="Your secret key" minlength="4" />
-
-          <button type="submit" class="action-btn" id="encrypt-btn" disabled>Encrypt File</button>
-        </form>
-        <div class="status-message" id="encrypt-status" aria-live="polite" role="status"></div>
-      </article>
-
-      <article class="card" aria-labelledby="decrypt-title">
-        <h2 id="decrypt-title">Decrypt a File</h2>
-        <form id="decrypt-form" autocomplete="off">
-          <label for="decrypt-file">Select file to decrypt</label>
-          <input type="file" id="decrypt-file" name="decrypt-file" aria-required="true" accept="*/*" />
-          
-          <label for="decrypt-password">Enter decryption key (password)</label>
-          <input type="password" id="decrypt-password" name="decrypt-password" aria-required="true" placeholder="Your secret key" minlength="4" />
-
-          <button type="submit" class="action-btn" id="decrypt-btn" disabled>Decrypt File</button>
-        </form>
-        <div class="status-message" id="decrypt-status" aria-live="polite" role="status"></div>
-      </article>
-    </section>
+  <section class="hero" aria-labelledby="hero-title">
+    <h1 id="hero-title">Secure Your Files Instantly</h1>
+    <p>Encrypt and decrypt your files with ease and ultimate security.</p>
+    <button class="cta-button" id="focusEncrypt" aria-describedby="hero-desc">Get Started</button>
   </section>
 
-  <!-- About tab panel -->
-  <section role="tabpanel" id="panel-about" aria-labelledby="tab-about" tabindex="0">
-    <article class="about-section" aria-label="About this project">
-      <h2>About This Project</h2>
-      <p>This simple yet powerful tool enables you to securely encrypt and decrypt your files directly in your browser. Using strong AES-GCM encryption with a user-defined password, it ensures your sensitive data remains confidential and accessible only to those with the correct key. No data leaves your device, giving you full control over your privacy and security.</p>
+  <section class="main-section" aria-label="File encryption and decryption">
+    <article class="card" aria-labelledby="encrypt-title">
+      <h2 id="encrypt-title">Encrypt a File</h2>
+      <form id="encrypt-form" autocomplete="off">
+        <label for="encrypt-file">Select file to encrypt</label>
+        <input type="file" id="encrypt-file" name="encrypt-file" aria-required="true" accept="*/*" />
+        
+        <label for="encrypt-password">Enter encryption key (password)</label>
+        <input type="password" id="encrypt-password" name="encrypt-password" aria-required="true" placeholder="Your secret key" minlength="4" />
+
+        <button type="submit" class="action-btn" id="encrypt-btn" disabled>Encrypt File</button>
+      </form>
+      <div class="status-message" id="encrypt-status" aria-live="polite" role="status"></div>
+    </article>
+
+    <article class="card" aria-labelledby="decrypt-title">
+      <h2 id="decrypt-title">Decrypt a File</h2>
+      <form id="decrypt-form" autocomplete="off">
+        <label for="decrypt-file">Select file to decrypt</label>
+        <input type="file" id="decrypt-file" name="decrypt-file" aria-required="true" accept="*/*" />
+        
+        <label for="decrypt-password">Enter decryption key (password)</label>
+        <input type="password" id="decrypt-password" name="decrypt-password" aria-required="true" placeholder="Your secret key" minlength="4" />
+
+        <button type="submit" class="action-btn" id="decrypt-btn" disabled>Decrypt File</button>
+      </form>
+      <div class="status-message" id="decrypt-status" aria-live="polite" role="status"></div>
     </article>
   </section>
 </main>
 
-<script src="script.js"></script>
+<script>
+  'use strict';
+
+  // Utils for array buffer and Hex converters to show keys if needed
+  function bufToHex(buffer) {
+    return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
+  }
+
+  async function deriveKey(password, salt, keyUsage) {
+    // Password key -> PBKDF2 salt -> AES-GCM key
+    const enc = new TextEncoder();
+    const passKey = await crypto.subtle.importKey(
+      'raw',
+      enc.encode(password),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt,
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      passKey,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      keyUsage
+    );
+  }
+
+  async function encryptData(password, data) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt, ['encrypt']);
+    const encrypted = await crypto.subtle.encrypt(
+      {
+        name: 'AES-GCM',
+        iv: iv
+      },
+      key,
+      data
+    );
+    // Structure of encrypted data:
+    // [salt(16 bytes)] + [iv(12 bytes)] + [ciphertext]
+    const combined = new Uint8Array(salt.byteLength + iv.byteLength + encrypted.byteLength);
+    combined.set(salt, 0);
+    combined.set(iv, salt.byteLength);
+    combined.set(new Uint8Array(encrypted), salt.byteLength + iv.byteLength);
+    return combined.buffer;
+  }
+
+  async function decryptData(password, encryptedBuffer) {
+    const combined = new Uint8Array(encryptedBuffer);
+    if (combined.length < 16 + 12 + 16) {
+      // minimal ciphertext length check (salt + iv + tag)
+      throw new Error('Data too short or corrupted.');
+    }
+    const salt = combined.slice(0,16);
+    const iv = combined.slice(16,28);
+    const ciphertext = combined.slice(28);
+    const key = await deriveKey(password, salt, ['decrypt']);
+    const decrypted = await crypto.subtle.decrypt(
+      {
+        name: 'AES-GCM',
+        iv: iv
+      },
+      key,
+      ciphertext
+    );
+    return decrypted;
+  }
+
+  // File helpers
+  function readFileAsArrayBuffer(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => {
+        reject(new Error('Failed to read file'));
+      };
+      reader.onload = () => {
+        resolve(reader.result);
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  function downloadFile(buffer, filename) {
+    const blob = new Blob([buffer], {type: 'application/octet-stream'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }
+
+  // UI state toggling and validation helpers
+  function validateEncryptForm() {
+    const file = document.getElementById('encrypt-file').files[0];
+    const pw = document.getElementById('encrypt-password').value;
+    document.getElementById('encrypt-btn').disabled = !(file && pw.length >= 4);
+  }
+
+  function validateDecryptForm() {
+    const file = document.getElementById('decrypt-file').files[0];
+    const pw = document.getElementById('decrypt-password').value;
+    document.getElementById('decrypt-btn').disabled = !(file && pw.length >= 4);
+  }
+
+  // Event handlers
+  document.getElementById('encrypt-file').addEventListener('change', validateEncryptForm);
+  document.getElementById('encrypt-password').addEventListener('input', validateEncryptForm);
+
+  document.getElementById('decrypt-file').addEventListener('change', validateDecryptForm);
+  document.getElementById('decrypt-password').addEventListener('input', validateDecryptForm);
+
+  document.getElementById('encrypt-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const statusEl = document.getElementById('encrypt-status');
+    statusEl.textContent = 'Encrypting... Please wait.';
+    const fileInput = document.getElementById('encrypt-file');
+    const password = document.getElementById('encrypt-password').value;
+    if (!fileInput.files.length) {
+      statusEl.textContent = 'Please select a file to encrypt.';
+      return;
+    }
+    try {
+      const file = fileInput.files[0];
+      const fileData = await readFileAsArrayBuffer(file);
+      const encryptedData = await encryptData(password, fileData);
+      const encryptedFilename = file.name + '.enc';
+      downloadFile(encryptedData, encryptedFilename);
+      statusEl.textContent = `Encryption successful! Downloading "${encryptedFilename}"`;
+    } catch (err) {
+      statusEl.textContent = 'Encryption failed: ' + err.message;
+    }
+  });
+
+  document.getElementById('decrypt-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const statusEl = document.getElementById('decrypt-status');
+    statusEl.textContent = 'Decrypting... Please wait.';
+    const fileInput = document.getElementById('decrypt-file');
+    const password = document.getElementById('decrypt-password').value;
+    if (!fileInput.files.length) {
+      statusEl.textContent = 'Please select a file to decrypt.';
+      return;
+    }
+    try {
+      const file = fileInput.files[0];
+      const encryptedData = await readFileAsArrayBuffer(file);
+      const decryptedData = await decryptData(password, encryptedData);
+      // Attempt to auto-remove .enc extension or use original name
+      let originalFilename = file.name;
+      if (originalFilename.endsWith('.enc')) {
+        originalFilename = originalFilename.slice(0, -4);
+      } else {
+        originalFilename = 'decrypted_' + originalFilename;
+      }
+      downloadFile(decryptedData, originalFilename);
+      statusEl.textContent = `Decryption successful! Downloading "${originalFilename}"`;
+    } catch (err) {
+      if (err.name === 'OperationError') {
+        statusEl.textContent = 'Decryption failed: Incorrect key or corrupted file.';
+      } else {
+        statusEl.textContent = 'Decryption failed: ' + err.message;
+      }
+    }
+  });
+
+  // Hero CTA button focus moves to encrypt password input
+  document.getElementById('focusEncrypt').addEventListener('click', () => {
+    document.getElementById('encrypt-password').focus();
+  });
+</script>
 </body>
 </html>
+
