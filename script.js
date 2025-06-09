@@ -1,348 +1,180 @@
-/* Import Inter font from Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+ 'use strict';
 
-:root {
-  --color-bg: #2a3d4b;
-  --color-text-body: #d1d5db;
-  --color-text-dark: #f9fafb;
-  --color-primary-bg: #ffffff;
-  --color-primary-text: #2a3d4b;
-  --shadow-light: rgba(0,0,0,0.2);
-  --shadow-medium: rgba(0,0,0,0.4);
-  --radius: 0.75rem;
-}
+  // Utils for array buffer and Hex converters to show keys if needed
+  function bufToHex(buffer) {
+    return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
+  }
 
-/* Reset and base styles */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: var(--color-bg);
-  color: var(--color-text-body);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  position: relative;
-  min-height: 100vh;
-  isolation: isolate;
-}
-
-/* Vignette overlay */
-body::before {
-  content: "";
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(0, 0, 0, 0) 40%,
-      rgba(0, 0, 0, 0.5) 90%
+  async function deriveKey(password, salt, keyUsage) {
+    // Password key -> PBKDF2 salt -> AES-GCM key
+    const enc = new TextEncoder();
+    const passKey = await crypto.subtle.importKey(
+      'raw',
+      enc.encode(password),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveKey']
     );
-  mix-blend-mode: multiply;
-  opacity: 0.6;
-}
-
-a {
-  color: var(--color-primary-bg);
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-a:hover,
-a:focus {
-  color: #e5e7eb;
-  outline: none;
-}
-
-main {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 4rem 1rem 6rem;
-}
-
-header {
-  position: sticky;
-  top: 0;
-  background-color: #1f2b38;
-  box-shadow: 0 2px 12px var(--shadow-medium);
-  z-index: 1000;
-}
-
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  font-weight: 800;
-  font-size: 1.5rem;
-  color: var(--color-primary-bg);
-  letter-spacing: 0.05em;
-}
-
-nav ul {
-  list-style: none;
-  display: flex;
-  gap: 2rem;
-  padding: 0;
-  margin: 0;
-}
-
-/* Tablist style */
-.tablist {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.tablist button {
-  background: none;
-  border: none;
-  font-weight: 600;
-  font-size: 1rem;
-  color: var(--color-primary-bg);
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  border-radius: var(--radius);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.tablist button[aria-selected="true"] {
-  background-color: var(--color-primary-bg);
-  color: var(--color-primary-text);
-  cursor: default;
-}
-
-.tablist button:focus-visible {
-  outline: 2px solid var(--color-primary-bg);
-  outline-offset: 2px;
-}
-
-.hero {
-  text-align: center;
-  padding-top: 8rem;
-  padding-bottom: 4rem;
-}
-
-.hero h1 {
-  font-weight: 800;
-  color: var(--color-primary-bg);
-  font-size: 3rem;
-  max-width: 700px;
-  margin: 0 auto 1rem;
-  line-height: 1.1;
-}
-
-@media (min-width: 640px) {
-  .hero h1 {
-    font-size: 4rem;
+    return crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt,
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      passKey,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      keyUsage
+    );
   }
-}
 
-.hero p {
-  font-weight: 500;
-  font-size: 1.25rem;
-  max-width: 560px;
-  margin: 0 auto 2.5rem;
-  color: #d1d5db;
-}
-
-.hero .cta-button {
-  background-color: var(--color-primary-bg);
-  color: var(--color-primary-text);
-  font-weight: 700;
-  font-size: 1.25rem;
-  padding: 1rem 3rem;
-  border-radius: var(--radius);
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(255 255 255 / 0.4);
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.hero .cta-button:hover,
-.hero .cta-button:focus {
-  background-color: #f4f4f5;
-  outline: none;
-  transform: scale(1.05);
-}
-
-/* Hide panels by default */
-[role="tabpanel"] {
-  display: none;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-[role="tabpanel"].active {
-  display: block;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* About section styling (inside about tab) */
-.about-section {
-  background-color: #324759;
-  border-radius: var(--radius);
-  box-shadow: 0 4px 12px var(--shadow-medium);
-  padding: 3rem 2.5rem;
-  max-width: 800px;
-  margin: 0 auto;
-  color: var(--color-primary-bg);
-}
-
-.about-section h2 {
-  font-weight: 800;
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
-
-.about-section p {
-  font-weight: 500;
-  font-size: 1.125rem;
-  color: #d1d5db;
-  line-height: 1.6;
-}
-
-.main-section {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 3rem;
-}
-
-@media (min-width: 768px) {
-  .main-section {
-    grid-template-columns: 1fr 1fr;
+  async function encryptData(password, data) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt, ['encrypt']);
+    const encrypted = await crypto.subtle.encrypt(
+      {
+        name: 'AES-GCM',
+        iv: iv
+      },
+      key,
+      data
+    );
+    // Structure of encrypted data:
+    // [salt(16 bytes)] + [iv(12 bytes)] + [ciphertext]
+    const combined = new Uint8Array(salt.byteLength + iv.byteLength + encrypted.byteLength);
+    combined.set(salt, 0);
+    combined.set(iv, salt.byteLength);
+    combined.set(new Uint8Array(encrypted), salt.byteLength + iv.byteLength);
+    return combined.buffer;
   }
-}
 
-.card {
-  background-color: #3f536a;
-  border-radius: var(--radius);
-  box-shadow: 0 4px 12px var(--shadow-medium);
-  padding: 2.5rem 2rem 3rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  color: var(--color-primary-bg);
-}
+  async function decryptData(password, encryptedBuffer) {
+    const combined = new Uint8Array(encryptedBuffer);
+    if (combined.length < 16 + 12 + 16) {
+      // minimal ciphertext length check (salt + iv + tag)
+      throw new Error('Data too short or corrupted.');
+    }
+    const salt = combined.slice(0,16);
+    const iv = combined.slice(16,28);
+    const ciphertext = combined.slice(28);
+    const key = await deriveKey(password, salt, ['decrypt']);
+    const decrypted = await crypto.subtle.decrypt(
+      {
+        name: 'AES-GCM',
+        iv: iv
+      },
+      key,
+      ciphertext
+    );
+    return decrypted;
+  }
 
-.card h2 {
-  font-weight: 700;
-  color: var(--color-primary-bg);
-  font-size: 1.75rem;
-  margin: 0 0 1rem;
-}
+  // File helpers
+  function readFileAsArrayBuffer(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => {
+        reject(new Error('Failed to read file'));
+      };
+      reader.onload = () => {
+        resolve(reader.result);
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
 
-label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--color-primary-bg);
-  font-size: 1rem;
-}
+  function downloadFile(buffer, filename) {
+    const blob = new Blob([buffer], {type: 'application/octet-stream'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }
 
-input[type="file"] {
-  font-size: 1rem;
-  color: var(--color-primary-bg);
-  background-color: #516b87;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
+  // UI state toggling and validation helpers
+  function validateEncryptForm() {
+    const file = document.getElementById('encrypt-file').files[0];
+    const pw = document.getElementById('encrypt-password').value;
+    document.getElementById('encrypt-btn').disabled = !(file && pw.length >= 4);
+  }
 
-input[type="file"]:hover,
-input[type="file"]:focus {
-  background-color: #6380ac;
-  outline: none;
-}
+  function validateDecryptForm() {
+    const file = document.getElementById('decrypt-file').files[0];
+    const pw = document.getElementById('decrypt-password').value;
+    document.getElementById('decrypt-btn').disabled = !(file && pw.length >= 4);
+  }
 
-input[type="password"] {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border: 1.5px solid #6b7e99;
-  border-radius: 0.5rem;
-  background-color: #516b87;
-  color: var(--color-primary-bg);
-  transition: border-color 0.3s ease;
-}
+  // Event handlers
+  document.getElementById('encrypt-file').addEventListener('change', validateEncryptForm);
+  document.getElementById('encrypt-password').addEventListener('input', validateEncryptForm);
 
-input[type="password"]::placeholder {
-  color: #cbd5e1;
-}
+  document.getElementById('decrypt-file').addEventListener('change', validateDecryptForm);
+  document.getElementById('decrypt-password').addEventListener('input', validateDecryptForm);
 
-input[type="password"]:focus {
-  border-color: var(--color-primary-bg);
-  outline: none;
-  background-color: #6380ac;
-}
+  document.getElementById('encrypt-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const statusEl = document.getElementById('encrypt-status');
+    statusEl.textContent = 'Encrypting... Please wait.';
+    const fileInput = document.getElementById('encrypt-file');
+    const password = document.getElementById('encrypt-password').value;
+    if (!fileInput.files.length) {
+      statusEl.textContent = 'Please select a file to encrypt.';
+      return;
+    }
+    try {
+      const file = fileInput.files[0];
+      const fileData = await readFileAsArrayBuffer(file);
+      const encryptedData = await encryptData(password, fileData);
+      const encryptedFilename = file.name + '.enc';
+      downloadFile(encryptedData, encryptedFilename);
+      statusEl.textContent = `Encryption successful! Downloading "${encryptedFilename}"`;
+    } catch (err) {
+      statusEl.textContent = 'Encryption failed: ' + err.message;
+    }
+  });
 
-button.action-btn {
-  background-color: var(--color-primary-bg);
-  color: var(--color-primary-text);
-  font-weight: 700;
-  padding: 0.75rem 1.5rem;
-  font-size: 1.1rem;
-  border-radius: var(--radius);
-  border: none;
-  cursor: pointer;
-  align-self: start;
-  box-shadow: 0 4px 14px rgba(255 255 255 / 0.5);
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
+  document.getElementById('decrypt-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const statusEl = document.getElementById('decrypt-status');
+    statusEl.textContent = 'Decrypting... Please wait.';
+    const fileInput = document.getElementById('decrypt-file');
+    const password = document.getElementById('decrypt-password').value;
+    if (!fileInput.files.length) {
+      statusEl.textContent = 'Please select a file to decrypt.';
+      return;
+    }
+    try {
+      const file = fileInput.files[0];
+      const encryptedData = await readFileAsArrayBuffer(file);
+      const decryptedData = await decryptData(password, encryptedData);
+      // Attempt to auto-remove .enc extension or use original name
+      let originalFilename = file.name;
+      if (originalFilename.endsWith('.enc')) {
+        originalFilename = originalFilename.slice(0, -4);
+      } else {
+        originalFilename = 'decrypted_' + originalFilename;
+      }
+      downloadFile(decryptedData, originalFilename);
+      statusEl.textContent = `Decryption successful! Downloading "${originalFilename}"`;
+    } catch (err) {
+      if (err.name === 'OperationError') {
+        statusEl.textContent = 'Decryption failed: Incorrect key or corrupted file.';
+      } else {
+        statusEl.textContent = 'Decryption failed: ' + err.message;
+      }
+    }
+  });
 
-button.action-btn:disabled {
-  background-color: #7a8a9e;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-button.action-btn:hover:not(:disabled),
-button.action-btn:focus:not(:disabled) {
-  background-color: #e2e8f0;
-  color: var(--color-bg);
-  outline: none;
-  transform: scale(1.05);
-}
-
-.status-message {
-  font-weight: 600;
-  font-size: 1rem;
-  color: var(--color-primary-bg);
-  min-height: 1.25rem;
-  user-select: none;
-  white-space: pre-wrap;
-}
-
-.download-link {
-  margin-top: 0.8rem;
-  display: inline-block;
-  font-weight: 600;
-  color: var(--color-primary-bg);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.download-link:hover,
-.download-link:focus {
-  color: #f0f9ff;
-  outline: none;
-}
-
+  // Hero CTA button focus moves to encrypt password input
+  document.getElementById('focusEncrypt').addEventListener('click', () => {
+    document.getElementById('encrypt-password').focus();
+  });
