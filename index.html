@@ -1,0 +1,27 @@
+        <div class="status-message" id="encrypt-status" aria-live="polite" role="status"></div>
+      </article>
+      <article class="card" aria-labelledby="decrypt-title">
+        <h2 id="decrypt-title">Decrypt a File</h2>
+        <form id="decrypt-form" autocomplete="off">
+          <label for="decrypt-file">Select file to decrypt</label>
+          <input type="file" id="decrypt-file" name="decrypt-file" aria-required="true" accept="*/*" />
+          
+          <label for="decrypt-password">Enter decryption key (password)</label>
+          <input type="password" id="decrypt-password" name="decrypt-password" aria-required="true" placeholder="Your secret key" minlength="4" />
+          <button type="submit" class="action-btn" id="decrypt-btn" disabled>Decrypt File</button>
+        </form>
+        <div class="status-message" id="decrypt-status" aria-live="polite" role="status"></div>
+      </article>
+    </section>
+  </section>
+  <!-- About tab panel -->
+  <section role="tabpanel" id="panel-about" aria-labelledby="tab-about" tabindex="0">
+    <article class="about-section" aria-label="About this project">
+      <h2>About This Project</h2>
+      <p>This simple yet powerful tool enables you to securely encrypt and decrypt your files directly in your browser. Using strong AES-GCM encryption with a user-defined password, it ensures your sensitive data remains confidential and accessible only to those with the correct key. No data leaves your device, giving you full control over your privacy and security.</p>
+    </article>
+  </section>
+</main>
+<script src="script.js"></script>
+</body>
+</html>
